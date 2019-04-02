@@ -4,7 +4,7 @@
   "description": "Emulating a online purchase, inventory management, and sales reporting environment",
   "main": "bamazonCustomer.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "bamazonCustomer.js"
   },
   "repository": {
     "type": "git",
@@ -22,9 +22,6 @@
     "i": "^0.3.6",
     "inquirer": "^6.2.2",
     "mysql": "^2.16.0"
-  },
-  "scripts": {
-    "start": "bamazonCustomer.js"
   },
   "devDependencies": {}
 }

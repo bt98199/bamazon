@@ -13,8 +13,6 @@ var connection = mysql.createConnection({
 // connect to the mysql server and sql database
 connection.connect(function(err) {
   if (err) throw err;
-  // run the start function after the connection is made to prompt the user
-  // getPriceInv();
   start();
 });
 
@@ -27,20 +25,24 @@ function start() {
       choices: ["VIEW ALL FOR SALE", "VIEW LOW INVENTORY", "ADD TO INVENTORY", "ADD NEW PRODUCT", "EXIT"]
     })
     .then(function(answer) {
-      // based on their answer, either call the bid or the post functions
-      if (answer.managerConsole === "VIEW ALL FOR SALE") {
-        getPriceInvMaster();
-      }
-      else if(answer.managerConsole === "VIEW LOW INVENTORY") {
-        getInvLow(); // shows only qty < 100
-      } else if(answer.managerConsole === "ADD TO INVENTORY") {
-        addInventory();
-      } else if(answer.managerConsole === "ADD NEW PRODUCT") {
-        addNewProduct();
-      } else {
+      switch (answer.managerConsole) {
+  
+        case "VIEW ALL FOR SALE":
+          getPriceInvMaster();
+          break;
+        case "VIEW LOW INVENTORY":
+          getInvLow(); // shows only qty < 100
+          break;
+        case "ADD TO INVENTORY":
+          addInventory();
+          break;
+        case "ADD NEW PRODUCT":
+          addNewProduct();
+          break;
+        default:
         console.log ("Back to terminal, remember you can view as the customer or department head");
         process.exit(0);
-      }
+        }
     });
 }
 
@@ -90,7 +92,6 @@ function addInventory() {
       ])
       .then(function(answer) {
         // get the information of the chosen item
-        console.log(answer.choice);
         var chosenItem;
         for (var i = 0; i < results.length; i++) {
           if (results[i].product_name === answer.choice) {
@@ -102,7 +103,7 @@ function addInventory() {
           "UPDATE product SET ? WHERE ?",
           [
             {
-              stock_qty: (chosenItem.stock_qty + answer.qty)
+              stock_qty: (parseInt(chosenItem.stock_qty) + parseInt(answer.qty))
             },
             {
               item_id: chosenItem.item_id
@@ -111,85 +112,70 @@ function addInventory() {
           function(error) {
             if (error) throw err;
             console.log("You have added inventory to: " + chosenItem.product_name);
-            console.log ("The updated quantity is: " + (chosenItem.stock_qty + answer.qty))
-            start();
+            console.log ("The updated quantity is: " + 
+            (parseInt(chosenItem.stock_qty) + parseInt(answer.qty))
+            )
+            getPriceInvMaster();
           }
         );
       });
     });
   }
 
-
-
-
-
-
-
-// // function to handle posting new items up for auction
-// function postAuction() {
-//   // prompt for info about the item being put up for auction
-//   inquirer
-//     .prompt([
-//       {
-//         name: "item",
-//         type: "input",
-//         message: "What is the item you would like to submit?"
-//       },
-//       {
-//         name: "category",
-//         type: "input",
-//         message: "What category would you like to place your auction in?"
-//       },
-//       {
-//         name: "startingBid",
-//         type: "input",
-//         message: "What would you like your starting bid to be?",
-//         validate: function(value) {
-//           if (isNaN(value) === false) {
-//             return true;
-//           }
-//           return false;
-//         }
-//       }
-//     ])
-//     .then(function(answer) {
-//       // when finished prompting, insert a new item into the db with that info
-//       connection.query(
-//         "INSERT INTO auctions SET ?",
-//         {
-//           item_name: answer.item,
-//           category: answer.category,
-//           starting_bid: answer.startingBid || 0,
-//           highest_bid: answer.startingBid || 0
-//         },
-//         function(err) {
-//           if (err) throw err;
-//           console.log("Your auction was created successfully!");
-//           // re-prompt the user for if they want to bid or post
-//           start();
-//         }
-//       );
-//     });
-// }
-
-  
-// function start2() {
-//     inquirer
-//       .prompt({
-//         name: "postOrBid",
-//         type: "list",
-//         message: "Would you like to [POST] an auction or [BID] on an auction?",
-//         choices: ["POST", "BID", "EXIT"]
-//       })
-//       .then(function(answer) {
-//         // based on their answer, either call the bid or the post functions
-//         if (answer.postOrBid === "POST") {
-//           postAuction();
-//         }
-//         else if(answer.postOrBid === "BID") {
-//           bidAuction();
-//         } else{
-//           connection.end();
-//         }
-//       });
-//   }
+  function addNewProduct() {
+  connection.query("SELECT name  FROM department", function(err, results) {
+  if (err) throw err;
+  inquirer
+    .prompt([
+      {
+        name: "product_name",
+        type: "input",
+        message: "What new product are you adding"
+      },
+      {
+        name: "department_name",
+        type: "rawlist",
+        choices: function() {
+          var choiceArray = [];
+          for (var i = 0; i < results.length; i++) {
+            choiceArray.push(results[i].name);
+          }
+          return choiceArray;
+        },
+        message: "To which department is this assigned?"
+      },
+      {
+        name: "price",
+        type: "input",
+        message: "What is the customer facing price per item?"
+      },
+      {
+        name: "cogs",
+        type: "input",
+        message: "What is the estimted Cost of Goods Sold per item?"
+      },
+      {
+        name: "stock_qty",
+        type: "input",
+        message: "What starting quantity are you adding to inventory?"
+      }
+    ])
+    .then(function(answer) {
+      let query = "insert into product set ?"
+      connection.query(query,
+        {
+          product_name: answer.product_name,
+          department_name: answer.department_name,
+          price: answer.price,
+          cogs: answer.cogs,
+          stock_qty: answer.stock_qty
+        },
+        function(err) {
+          if (err) throw err;
+          console.log("You have updated inventory with a new product, which has been assigned ASIN: (max id + 1.. need to add");
+          getPriceInvMaster();
+        }
+      );
+    });
+    });
+}
