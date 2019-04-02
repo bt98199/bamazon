@@ -53,7 +53,7 @@ function start() {
 }
 function getDeptSales() {
     // connection.query("select * from product", function(err, res) {
-    connection.query("select d.id as Dep_ID, d.name as Dep_Name, d.rev_center, concat('$',format(sum(p.product_sales),2)) as Total_Sales, concat('$',format(sum(p.product_gross),2)) as Gross_Profit, concat('$',format(sum(d.over_head_costs) / count(*),2)) as OH_Cost, concat('$',format(sum(p.product_gross) - (sum(d.over_head_costs) / count(*)),2)) as EBITDA from department d left join product p on d.name = p.department_name group by 1,2,3 order by 1", function(err, res) {
+    connection.query("select d.id as Dep_ID, d.name as Dep_Name, d.rev_center, concat('$',format(sum(p.product_sales),2)) as Total_Sales, concat('$',format(sum(p.product_gross),2)) as Gross_Profit, concat('$',format(sum(d.over_head_costs) / count(*),2)) as OH_Cost, concat('$',format(sum(p.product_gross) - (sum(d.over_head_costs) / count(*)),2)) as EBITDA, d.user_id as CreatedBy, d.add_dt as Create_Date from department d left join product p on d.name = p.department_name group by 1,2,3,8,9 order by 1", function(err, res) {
       console.table(res);
       start();
     });
@@ -97,7 +97,7 @@ function addNewDept() {
 
 function getPriceInvMaster() {
   // connection.query("select * from product", function(err, res) {
-  connection.query('select product_name "ASIN", department_name "DEPARTMENT", price "$", concat(round(round(((price-cogs)/price),2)*100,0),"%") "GrossMargin", stock_qty "StockLeft" from product', function(err, res) {
+  connection.query('select product_name "ASIN", department_name "DEPARTMENT", price "$", concat(round(round(((price-cogs)/price),2)*100,0),"%") "GrossMargin", stock_qty "StockLeft", created_by, create_dte from product', function(err, res) {
     console.table(res);
     start();
   });
@@ -105,7 +105,7 @@ function getPriceInvMaster() {
 
   function getInvLow() {
     // connection.query("select * from product", function(err, res) {
-    connection.query('select product_name "ASIN", department_name "DEPARTMENT", price "$", concat(round(round(((price-cogs)/price),2)*100,0),"%") "GrossMargin", stock_qty "StockLeft" from product where stock_qty < 100', function(err, res) {
+    connection.query('select product_name "ASIN", department_name "DEPARTMENT", price "$", concat(round(round(((price-cogs)/price),2)*100,0),"%") "GrossMargin", stock_qty "StockLeft", created_by, left(create_dte,19) as Create_Date from product where stock_qty < 100', function(err, res) {
       console.table(res);
       start();
     });
@@ -215,7 +215,8 @@ function addInventory() {
             department_name: answer.department_name,
             price: answer.price,
             cogs: answer.cogs,
-            stock_qty: answer.stock_qty
+            stock_qty: answer.stock_qty,
+            created_by: "SUPERVISOR"
           },
           function(err) {
             if (err) throw err;

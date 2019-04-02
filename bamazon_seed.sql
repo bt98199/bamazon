@@ -12,6 +12,7 @@ CREATE TABLE product(
   change_logid decimal default 0,
   product_sales decimal (12,2) default 0,
   product_gross decimal (12,2) default 0,
+  created_by varchar(50),
   create_dte TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (item_id)
 );
@@ -36,15 +37,10 @@ add_dt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 primary key (id)
 );
 
-insert into product (product_name,department_name, price,cogs,stock_qty)
-values ('Kindle','ELECTRONICS',100,35,100), ('Echo','ELECTRONICS',80,35,150), ('Echo Dot','ELECTRONICS',60,20,300), ('Echo Show','ELECTRONICS',150,75,75),
-('Canada Goose Coat','CLOTHES',995,200,50),('Ugg Boots','CLOTHES',200,75,150),('Dansko Clogs','CLOTHES',115,20,300),('Saws-all','TOOLS',95,55,100),
-('Hilti DX460 Nail gun','TOOLS',350,200,50),('Circular Saw','TOOLS',70,50,200),('Belt Sander','TOOLS',130,80,50),('Air Compressor','TOOLS',60,25,100)
+insert into product (product_name,department_name, price,cogs,stock_qty,created_by)
+values ('Kindle','ELECTRONICS',100,35,100,'SYSADMIN'), ('Echo','ELECTRONICS',80,35,150,'SYSADMIN'), ('Echo Dot','ELECTRONICS',60,20,300,'SYSADMIN'), ('Echo Show','ELECTRONICS',150,75,75,'SYSADMIN'),('Canada Goose Coat','CLOTHES',995,200,50,'SYSADMIN'),('Ugg Boots','CLOTHES',200,75,150,'SYSADMIN'),('Dansko Clogs','CLOTHES',115,20,300,'SYSADMIN'),('Saws-all','TOOLS',95,55,100,'SYSADMIN'),('Hilti DX460 Nail gun','TOOLS',350,200,50,'SYSADMIN'),('Circular Saw','TOOLS',70,50,200,'SYSADMIN'),('Belt Sander','TOOLS',130,80,50,'SYSADMIN'),('Air Compressor','TOOLS',60,25,100,'SYSADMIN')
 ;
 
--- insert into department (name,over_head_costs, rev_center,user_id,add_dt)
--- values ('ELECTRONICS',300,'EE100','SYSADMIN',now()), ('CLOTHES',200,'TX100','SYSADMIN',now()), ('TOOLS',100,'TO555','SYSADMIN',now()), ('COSMETICS',150,'CS105','SYSADMIN',now())
--- ;
 insert into department (name,over_head_costs, rev_center,user_id)
 values ('ELECTRONICS',3000,'EE100','SYSADMIN'), ('CLOTHES',2000,'TX100','SYSADMIN'), ('TOOLS',1000,'TO555','SYSADMIN'), ('COSMETICS',1500,'CS105','SYSADMIN')
 ;

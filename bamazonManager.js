@@ -50,7 +50,7 @@ function start() {
 
 function getPriceInvMaster() {
   // connection.query("select * from product", function(err, res) {
-  connection.query('select product_name "ASIN", department_name "DEPARTMENT", price "$", concat(round(round(((price-cogs)/price),2)*100,0),"%") "GrossMargin", stock_qty "StockLeft" from product', function(err, res) {
+  connection.query('select product_name "ASIN", department_name "DEPARTMENT", price "$", concat(round(round(((price-cogs)/price),2)*100,0),"%") "GrossMargin", stock_qty "StockLeft", created_by, create_dte from product', function(err, res) {
     console.table(res);
     start();
   });
@@ -64,7 +64,6 @@ function getPriceInvMaster() {
     });
     }
 
-// functiondddd
 function addInventory() {
   // query the database for all items currently for sale
   connection.query("SELECT * FROM product", function(err, results) {
@@ -168,7 +167,8 @@ function addInventory() {
           department_name: answer.department_name,
           price: answer.price,
           cogs: answer.cogs,
-          stock_qty: answer.stock_qty
+          stock_qty: answer.stock_qty,
+          created_by: "MANAGER"
         },
         function(err) {
           if (err) throw err;
